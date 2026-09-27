@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: private-love-vault
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/setup
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: VAULT_SESSION_SECRET
+        generateValue: true
+      - key: VAULT_SESSION_COOKIE
+        value: plv_session
+      - key: SESSION_MAX_AGE
+        value: "86400"
+      - key: STORAGE_BUCKET
+        value: vault-media
+      - key: SETUP_COMPLETED
+        value: "false"
+      - key: VAULT_SETUP_TOKEN
+        sync: false
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false

@@ -1,0 +1,255 @@
+@import "tailwindcss";
+
+/* ── Custom Properties ─────────────────────────────────── */
+:root {
+  --red-primary: #cc0000;
+  --red-glow: #ff0000;
+  --red-dark: #660000;
+  --neon-green: #00ff41;
+  --neon-green-dim: #00cc33;
+  --charcoal: #0a0a0a;
+  --dark-bg: #050505;
+  --glass-bg: rgba(10, 10, 10, 0.8);
+  --metallic: #8a8a8a;
+  --vault-purple: #6b21a8;
+  --vault-pink: #db2777;
+}
+
+/* ── Base ──────────────────────────────────────────────── */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  background: var(--dark-bg);
+  color: #fff;
+  font-family: 'Courier New', Courier, monospace;
+  overflow-x: hidden;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Scrollbar ─────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0a0a0a; }
+::-webkit-scrollbar-thumb { background: var(--red-dark); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--red-primary); }
+
+/* ── Animations ────────────────────────────────────────── */
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes glitch {
+  0%   { transform: translate(0); clip-path: inset(0 0 100% 0); }
+  10%  { transform: translate(-3px, 2px); clip-path: inset(20% 0 60% 0); }
+  20%  { transform: translate(3px, -2px); clip-path: inset(50% 0 30% 0); }
+  30%  { transform: translate(0); clip-path: inset(80% 0 0% 0); }
+  40%  { transform: translate(2px, 1px); clip-path: inset(10% 0 75% 0); }
+  50%  { transform: translate(-1px, -1px); clip-path: inset(40% 0 40% 0); }
+  100% { transform: translate(0); clip-path: inset(0 0 0 0); }
+}
+
+@keyframes pulse-red {
+  0%, 100% { box-shadow: 0 0 5px var(--red-glow), 0 0 10px var(--red-glow); }
+  50% { box-shadow: 0 0 20px var(--red-glow), 0 0 40px var(--red-glow), 0 0 60px var(--red-dark); }
+}
+
+@keyframes pulse-green {
+  0%, 100% { box-shadow: 0 0 5px var(--neon-green), 0 0 10px var(--neon-green); }
+  50% { box-shadow: 0 0 20px var(--neon-green), 0 0 40px var(--neon-green), 0 0 60px var(--neon-green-dim); }
+}
+
+@keyframes skull-float {
+  0%, 100% { transform: translateY(0px) rotate(-2deg); }
+  50% { transform: translateY(-12px) rotate(2deg); }
+}
+
+@keyframes scan-horizontal {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+@keyframes data-stream {
+  0% { opacity: 0; transform: translateY(-20px); }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(20px); }
+}
+
+@keyframes border-run {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.4; }
+  94% { opacity: 1; }
+  96% { opacity: 0.6; }
+  97% { opacity: 1; }
+}
+
+@keyframes type-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes rotate-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes waveform {
+  0%, 100% { height: 4px; }
+  50% { height: 24px; }
+}
+
+/* ── Utility Classes ───────────────────────────────────── */
+.glow-red {
+  text-shadow: 0 0 10px var(--red-glow), 0 0 20px var(--red-glow), 0 0 40px var(--red-dark);
+}
+
+.glow-green {
+  text-shadow: 0 0 10px var(--neon-green), 0 0 20px var(--neon-green);
+}
+
+.border-glow-red {
+  border-color: var(--red-primary);
+  box-shadow: 0 0 8px var(--red-glow), inset 0 0 8px rgba(204, 0, 0, 0.1);
+}
+
+.border-glow-green {
+  border-color: var(--neon-green);
+  box-shadow: 0 0 8px var(--neon-green), inset 0 0 8px rgba(0, 255, 65, 0.1);
+}
+
+.glass-panel {
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.scanline-overlay {
+  position: relative;
+  overflow: hidden;
+}
+
+.scanline-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(204, 0, 0, 0.4), transparent);
+  animation: scanline 3s linear infinite;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.skull-animate {
+  animation: skull-float 4s ease-in-out infinite;
+}
+
+.flicker-text {
+  animation: flicker 8s infinite;
+}
+
+/* ── Vault Dashboard gradient ─────────────────────────── */
+.vault-gradient {
+  background: linear-gradient(135deg, #0a0014 0%, #120020 25%, #0d0018 50%, #180028 75%, #0a0014 100%);
+}
+
+/* ── Hacker terminal grid ─────────────────────────────── */
+.hacker-grid {
+  background-image:
+    linear-gradient(rgba(204, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(204, 0, 0, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ── Keypad button ────────────────────────────────────── */
+.keypad-btn {
+  background: rgba(20, 0, 0, 0.8);
+  border: 1px solid var(--red-dark);
+  color: var(--red-glow);
+  transition: all 0.15s ease;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+}
+
+.keypad-btn:hover {
+  background: rgba(100, 0, 0, 0.4);
+  border-color: var(--red-glow);
+  box-shadow: 0 0 12px var(--red-glow);
+  transform: scale(1.05);
+}
+
+.keypad-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 0 20px var(--red-glow), inset 0 0 10px rgba(255, 0, 0, 0.2);
+}
+
+/* ── Progress indicator ───────────────────────────────── */
+.progress-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid var(--red-dark);
+  background: transparent;
+  transition: all 0.4s ease;
+}
+
+.progress-dot.passed {
+  background: var(--neon-green);
+  border-color: var(--neon-green);
+  box-shadow: 0 0 8px var(--neon-green);
+}
+
+.progress-dot.active {
+  background: var(--red-primary);
+  border-color: var(--red-glow);
+  box-shadow: 0 0 8px var(--red-glow);
+  animation: pulse-red 1.5s infinite;
+}
+
+/* ── Media card ───────────────────────────────────────── */
+.media-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.media-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 32px rgba(107, 33, 168, 0.4);
+}
+
+/* ── Waveform bars ────────────────────────────────────── */
+.wave-bar {
+  width: 3px;
+  border-radius: 2px;
+  background: var(--red-primary);
+  animation: waveform 0.5s ease-in-out infinite;
+}
+
+.wave-bar:nth-child(2) { animation-delay: 0.1s; }
+.wave-bar:nth-child(3) { animation-delay: 0.2s; }
+.wave-bar:nth-child(4) { animation-delay: 0.3s; }
+.wave-bar:nth-child(5) { animation-delay: 0.15s; }
+.wave-bar:nth-child(6) { animation-delay: 0.25s; }
+.wave-bar:nth-child(7) { animation-delay: 0.05s; }
