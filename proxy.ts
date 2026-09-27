@@ -4,12 +4,34 @@ import { getSessionFromRequest, allLocksCleared } from '@/lib/auth/session'
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // Handle CORS for API requests
+  const origin = request.headers.get('origin')
+  const allowedOrigin = process.env.NEXT_PUBLIC_APP_URL || process.env.FRONTEND_URL || '*'
+  const isAllowedOrigin = origin && (allowedOrigin === '*' || origin === allowedOrigin || origin === 'http://localhost:3000')
+
+  if (request.method === 'OPTIONS') {
+    const preflight = new NextResponse(null, { status: 204 })
+    if (origin) {
+      preflight.headers.set('Access-Control-Allow-Origin', isAllowedOrigin ? origin : allowedOrigin)
+      preflight.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
+      preflight.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Cookie')
+      preflight.headers.set('Access-Control-Allow-Credentials', 'true')
+      preflight.headers.set('Access-Control-Max-Age', '86400')
+    }
+    return preflight
+  }
+
   // Public routes — always accessible
   const publicPaths = ['/', '/setup', '/auth', '/api/auth', '/api/setup', '/_next', '/favicon.ico', '/public']
   const isPublic = publicPaths.some(p => pathname.startsWith(p))
 
   if (isPublic) {
-    return NextResponse.next()
+    const res = NextResponse.next()
+    if (origin) {
+      res.headers.set('Access-Control-Allow-Origin', isAllowedOrigin ? origin : allowedOrigin)
+      res.headers.set('Access-Control-Allow-Credentials', 'true')
+    }
+    return res
   }
 
   // Protected routes — require full authentication
@@ -18,10 +40,15 @@ export async function proxy(request: NextRequest) {
   if (!session || !allLocksCleared(session.locksPassed)) {
     // API routes return 401
     if (pathname.startsWith('/api/')) {
-      return NextResponse.json(
+      const errRes = NextResponse.json(
         { error: 'Unauthorized. Complete all six authentication steps.' },
         { status: 401 }
       )
+      if (origin) {
+        errRes.headers.set('Access-Control-Allow-Origin', isAllowedOrigin ? origin : allowedOrigin)
+        errRes.headers.set('Access-Control-Allow-Credentials', 'true')
+      }
+      return errRes
     }
     // Page routes redirect to home
     return NextResponse.redirect(new URL('/', request.url))
@@ -49,6 +76,11 @@ export async function proxy(request: NextRequest) {
   // No caching for private content
   response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate')
   response.headers.set('Pragma', 'no-cache')
+
+  if (origin) {
+    response.headers.set('Access-Control-Allow-Origin', isAllowedOrigin ? origin : allowedOrigin)
+    response.headers.set('Access-Control-Allow-Credentials', 'true')
+  }
 
   return response
 }
